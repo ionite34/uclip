@@ -1,0 +1,11 @@
+name: Pull Request and Push to Main
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  coverage:
+    uses: ./.github/workflows/coverage.yml
