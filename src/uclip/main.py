@@ -15,7 +15,10 @@ _instr_b2_img_path = 'Leave blank for root'
 _instr_random_chars = 'Length of the random file name (Recommended between 4-12)'
 
 
-def run():
+def run() -> None:
+    """
+    Main function
+    """
     # Initialize the config
     with spinner(text='Loading config...', color='green') as sp:
         config = Config()
