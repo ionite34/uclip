@@ -18,7 +18,7 @@ jobs:
           - os: macos-latest
             poetry-cache: ~/Library/Caches/pypoetry
           - os: windows-latest
-            poetry-cache: C:/Users/${{ secrets.USERNAME }}/AppData/Local/pypoetry/Cache
+            poetry-cache: C:/Users/${{ github.actor }}/AppData/Local/pypoetry/Cache
 
     steps:
     - name: Checkout
