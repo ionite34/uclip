@@ -1,12 +1,4 @@
 [[package]]
-name = "appdirs"
-version = "1.4.4"
-description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "arrow"
 version = "1.2.2"
 description = "Better dates & times for Python"
@@ -142,7 +134,7 @@ python-versions = "*"
 
 [[package]]
 name = "inquirerpy"
-version = "0.3.3"
+version = "0.3.4"
 description = "Python port of Inquirer.js (A collection of common interactive command-line user interfaces)"
 category = "main"
 optional = false
@@ -240,7 +232,7 @@ testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
 name = "prompt-toolkit"
-version = "3.0.29"
+version = "3.0.30"
 description = "Library for building powerful interactive command lines in Python"
 category = "main"
 optional = false
@@ -409,17 +401,6 @@ secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "cer
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
-name = "usersettings"
-version = "1.1.5"
-description = "Portable Local Settings Storage"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-appdirs = ">=1.2"
-
-[[package]]
 name = "wcwidth"
 version = "0.2.5"
 description = "Measures the displayed width of unicode strings in a terminal"
@@ -441,13 +422,9 @@ termcolor = ">=1.1.0,<2.0.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "71a0dfe064cc1ec3fd9c9a34ca764ffc13c58453d8e2763cc0d6a3da5a0c5ee0"
+content-hash = "85f45d6a09351f62ef4d220234f591d7dab9a77e77c89e367751df2da085bea7"
 
 [metadata.files]
-appdirs = [
-    {file = "appdirs-1.4.4-py2.py3-none-any.whl", hash = "sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128"},
-    {file = "appdirs-1.4.4.tar.gz", hash = "sha256:7d5d0167b2b1ba821647616af46a749d1c653740dd0d2415100fe26e27afdf41"},
-]
 arrow = [
     {file = "arrow-1.2.2-py3-none-any.whl", hash = "sha256:d622c46ca681b5b3e3574fcb60a04e5cc81b9625112d5fb2b44220c36c892177"},
     {file = "arrow-1.2.2.tar.gz", hash = "sha256:05caf1fd3d9a11a1135b2b6f09887421153b94558e5ef4d090b567b47173ac2b"},
@@ -564,8 +541,8 @@ iniconfig = [
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
 ]
 inquirerpy = [
-    {file = "InquirerPy-0.3.3-py3-none-any.whl", hash = "sha256:773ba1f1c82852e5289e9fb3956ee06ef113ec949e3614d277ce24fe7945021c"},
-    {file = "InquirerPy-0.3.3.tar.gz", hash = "sha256:29a1ace830d98730e0a2fc01b4484256491c182cdde93ad66ff602b1b510aaeb"},
+    {file = "InquirerPy-0.3.4-py3-none-any.whl", hash = "sha256:c65fdfbac1fa00e3ee4fb10679f4d3ed7a012abf4833910e63c295827fe2a7d4"},
+    {file = "InquirerPy-0.3.4.tar.gz", hash = "sha256:89d2ada0111f337483cb41ae31073108b2ec1e618a49d7110b0d7ade89fc197e"},
 ]
 jeepney = [
     {file = "jeepney-0.8.0-py3-none-any.whl", hash = "sha256:c0a454ad016ca575060802ee4d590dd912e35c122fa04e70306de3d076cce755"},
@@ -632,8 +609,8 @@ pluggy = [
     {file = "pluggy-1.0.0.tar.gz", hash = "sha256:4224373bacce55f955a878bf9cfa763c1e360858e330072059e10bad68531159"},
 ]
 prompt-toolkit = [
-    {file = "prompt_toolkit-3.0.29-py3-none-any.whl", hash = "sha256:62291dad495e665fca0bda814e342c69952086afb0f4094d0893d357e5c78752"},
-    {file = "prompt_toolkit-3.0.29.tar.gz", hash = "sha256:bd640f60e8cecd74f0dc249713d433ace2ddc62b65ee07f96d358e0b152b6ea7"},
+    {file = "prompt_toolkit-3.0.30-py3-none-any.whl", hash = "sha256:d8916d3f62a7b67ab353a952ce4ced6a1d2587dfe9ef8ebc30dd7c386751f289"},
+    {file = "prompt_toolkit-3.0.30.tar.gz", hash = "sha256:859b283c50bde45f5f97829f77a4674d1c1fcd88539364f1b28a37805cfd89c0"},
 ]
 py = [
     {file = "py-1.11.0-py2.py3-none-any.whl", hash = "sha256:607c53218732647dff4acdfcd50cb62615cedf612e72d1724fb1a0cc6405b378"},
@@ -688,10 +665,6 @@ tqdm = [
 urllib3 = [
     {file = "urllib3-1.26.9-py2.py3-none-any.whl", hash = "sha256:44ece4d53fb1706f667c9bd1c648f5469a2ec925fcf3a776667042d645472c14"},
     {file = "urllib3-1.26.9.tar.gz", hash = "sha256:aabaf16477806a5e1dd19aa41f8c2b7950dd3c746362d7e3223dbe6de6ac448e"},
-]
-usersettings = [
-    {file = "usersettings-1.1.5-py3-none-any.whl", hash = "sha256:503be61d30d0cfd98f16bb6c9be86c29e78dc476c794ffae6333ab26f38994bf"},
-    {file = "usersettings-1.1.5.tar.gz", hash = "sha256:9f84b282982622d8ebfd2d42b482317ae50fb2b3a7fba22e0b0c36cac61ad673"},
 ]
 wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},
