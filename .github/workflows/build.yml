@@ -9,3 +9,6 @@ on:
 jobs:
   coverage:
     uses: ./.github/workflows/coverage.yml
+  tests:
+    needs: coverage
+    uses: ./.github/workflows/tests.yml

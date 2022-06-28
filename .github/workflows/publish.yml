@@ -1,0 +1,55 @@
+name: Publish to PyPI
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    env:
+      OS: ubuntu-latest
+      PYTHON: '3.10'
+
+    steps:
+    - name: Wait for tests to succeed
+      uses: lewagon/wait-on-check-action@v1.0.0
+      with:
+        ref: ${{ github.ref }}
+        check-name: 'Tests'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        wait-interval: 10
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Cache Poetry
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pypoetry
+        key: poetry-cache-${{ matrix.os }}-${{ matrix.poetry-cache }}-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ matrix.poetry-version }}
+
+    - name: Setup Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ env.PYTHON }}
+
+    - name: Run Poetry image
+      uses: abatilo/actions-poetry@v2.0.0
+      with:
+        poetry-version: ${{ env.PYTHON }}
+
+    - name: Install requirements
+      run: |
+        poetry install
+
+    - name: Poetry Build
+      run: |
+        poetry build
+
+    - name: Publish
+      run: |
+        poetry publish
