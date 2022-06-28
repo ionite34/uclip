@@ -15,7 +15,7 @@ pipx install uclip
 ```
 
 ### Run `--config` to set up your B2 API Keys and URL
-```toml
+```shell
 > uclip --config
 ? B2 Application ID: 0013770e41044120000000001
 ? B2 Application Key: **********************
