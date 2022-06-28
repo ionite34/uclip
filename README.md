@@ -16,7 +16,19 @@
 pipx install uclip
 ```
 
+### Run `--config` to set up your B2 API Keys and URL
+```toml
+> uclip --config
+? B2 Application ID: 0013770e41044120000000001
+? B2 Application Key: **********************
+? B2 Bucket Name: bucket-name
+? B2 Upload Path in Bucket: /screenshots/
+? Alternate URL: https://img.example.org/
+? File Name Length: 6
+```
+
 ### The OS Keychain Service is used for secure API credential storage:
+> The keychain can be set to always allow, or via biometric authentication by Touch ID or Windows Hello.
 
 | Windows                | MacOS         | Ubuntu LTS 20.04    |
 |------------------------|---------------|---------------------|
