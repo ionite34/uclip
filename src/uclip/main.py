@@ -38,7 +38,7 @@ def run():
         sp.text = 'Getting image from clipboard...'
         img = ImageGrab.grabclipboard()
         if not img:
-            sp.fail("❌ [No image found]")
+            sp.fail('❌ [No image found]')
             return
 
         # Connect to B2
@@ -46,7 +46,7 @@ def run():
         try:
             uploader = Uploader(config)
         except RuntimeError as e:
-            sp.fail(f'❌ ')
+            sp.fail('❌ ')
             print(e)
             return
 
