@@ -3,6 +3,7 @@ from keyring.backend import KeyringBackend
 
 
 class TestKeyring(KeyringBackend):
+
     """A test keyring which is just an in-memory dictionary."""
 
     priority = 1
