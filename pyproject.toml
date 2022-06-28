@@ -5,7 +5,7 @@ description = "CLI Utility to upload a clipboard image to a B2 bucket"
 authors = ["ionite34 <dev@ionite.io>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.7, <=3.10"
 Pillow = "^9.1.1"
 keyring = "^23.6.0"
 inquirerpy = "^0.3.4"
