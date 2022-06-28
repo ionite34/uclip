@@ -1,10 +1,11 @@
 ## UClip - Clipboard image uploader
 
-Command line utility to upload a clipboard image to a
-configurable B2 bucket, returning the image URL.
+[![Build](https://github.com/ionite34/uclip/actions/workflows/build.yml/badge.svg)](https://github.com/ionite34/uclip/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/ionite34/uclip/branch/main/graph/badge.svg?token=58XSRH3F26)](https://codecov.io/gh/ionite34/uclip)
 
-### Demo
+### Command line utility to upload a clipboard images to [B2 buckets][4].
 
+![](docs/demo.gif)
 
 
 > After upload, the displayed URL is also copied to the clipboard.
@@ -14,9 +15,6 @@ configurable B2 bucket, returning the image URL.
 ```shell
 pipx install uclip
 ```
-
-
-
 
 ### The OS Keychain Service is used for secure API credential storage:
 
@@ -30,3 +28,4 @@ pipx install uclip
 [1]: https://docs.microsoft.com/en-us/windows/uwp/security/credential-locker
 [2]: https://developer.apple.com/documentation/security/certificate_key_and_trust_services/keys/storing_keys_in_the_keychain
 [3]: https://specifications.freedesktop.org/secret-service/latest/
+[4]: https://www.backblaze.com/b2/cloud-storage.html
