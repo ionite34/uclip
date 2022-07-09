@@ -34,14 +34,14 @@ class Uploader:
         else:
             self.path_in_bucket = path_in_bucket
 
-    def exists(self, file_name: str) -> bool:
-        b2_path = f"{self.path_in_bucket}/{file_name}"
+    def exists(self, file_name: str):
+        b2_path = urljoin(self.path_in_bucket, file_name)
         # Try to download
         try:
-            search = self.bucket.download_file_by_name(b2_path)
+            search = self.bucket.get_file_info_by_name(b2_path)
         except b2_exception.FileNotPresent:
             return False
-        return not search
+        return search
 
     def upload(self, file_path: str):
         file_name = os.path.basename(file_path)
@@ -73,3 +73,20 @@ class Uploader:
             raise RuntimeError(f"Could not upload file: {e}")
 
         return urljoin(self.config["alt_url"], b2_path)
+
+    def remove(self, file_path: str):
+        # Check if the file exists
+        if not self.exists(file_path):
+            raise RuntimeError(f"File {file_path} does not exist")
+
+        # Remove the file
+        b2_path = urljoin(self.path_in_bucket, file_path)
+        try:
+            found_file = self.bucket.get_file_info_by_name(b2_path)
+            print(found_file)
+            return found_file
+            result = found_file.delete()
+        except exception.B2Error as e:
+            raise RuntimeError(f"Could not upload file: {e}")
+
+        return result

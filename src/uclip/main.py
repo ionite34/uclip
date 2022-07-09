@@ -75,6 +75,47 @@ def run() -> None:
         sp.ok('✅ ')
 
 
+def run_del(file_name: str) -> None:
+    # Initialize the config
+    with spinner(text='Loading config...', color='green') as sp:
+        config = Config()
+        try:
+            result = config.load()
+        except RuntimeError as e:
+            sp.text = ''
+            sp.fail(f'❌ {e}')
+            return
+
+        if not result:
+            sp.fail('❌ Config not found. Please run `uclip --config`.')
+            return
+
+        if not config.valid:
+            sp.fail('❌ Config not valid. Please run `uclip --config`.')
+            return
+
+        # Connect to B2
+        sp.text = 'Connecting to B2...'
+        try:
+            uploader = Uploader(config)
+        except RuntimeError as e:
+            sp.fail('❌ ')
+            print(e)
+            return
+
+        sp.text = 'Deleting file...'
+        try:
+            result = uploader.remove(file_name)
+        except RuntimeError as e:
+            sp.fail(f'❌ ')
+            print(e)
+            return
+
+        # Print the URL
+        sp.text = f'Deleted {file_name}'
+        sp.ok('🗑️')
+
+
 def config_setup():
     config = Config()
     config['b2_api_id'] = inquirer.text('B2 Application ID:', mandatory=True).execute()
@@ -90,9 +131,12 @@ def config_setup():
 
 
 @click.command()
-@click.option('--config', is_flag=True, help='Configure uclip')
-def uclip(config):
+@click.option('--config', '-c', is_flag=True, help='Configure uclip')
+@click.option('--delete', '-d', required=False)
+def uclip(config, delete):
     if config:
         config_setup()
+    elif delete:
+        run_del(delete)
     else:
         run()
