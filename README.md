@@ -3,7 +3,7 @@
 [![Build](https://github.com/ionite34/uclip/actions/workflows/build.yml/badge.svg)](https://github.com/ionite34/uclip/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/ionite34/uclip/branch/main/graph/badge.svg?token=58XSRH3F26)](https://codecov.io/gh/ionite34/uclip)
 
-### Command line utility to upload a clipboard images to [B2 buckets][4]
+### Command line utility to upload clipboard images to [B2 buckets][4]
 
 ![](docs/demo.gif)
 
