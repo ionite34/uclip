@@ -23,5 +23,6 @@ class TestKeyring(KeyringBackend):
 @pytest.fixture(scope="function")
 def mem_keyring():
     import keyring as kr
+
     kr.set_keyring(TestKeyring())
     return kr
