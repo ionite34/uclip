@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import os
 import random
 import string
 from urllib.parse import urljoin
 
 import b2sdk.exception as b2_exception
+import b2sdk.file_version
 from b2sdk.v2 import B2Api, InMemoryAccountInfo, exception
 
 from uclip.config import Config
@@ -34,13 +37,14 @@ class Uploader:
         else:
             self.path_in_bucket = path_in_bucket
 
-    def exists(self, file_name: str):
+    def find_file(self, file_name: str) -> b2sdk.file_version.DownloadVersion | None:
+        """Searches for a file with the given bucket path"""
         b2_path = urljoin(self.path_in_bucket, file_name)
         # Try to download
         try:
             search = self.bucket.get_file_info_by_name(b2_path)
         except b2_exception.FileNotPresent:
-            return False
+            return None
         return search
 
     def upload(self, file_path: str):
@@ -60,7 +64,7 @@ class Uploader:
                 raise RuntimeError(
                     "Could not find a unique name for the file in 5 attempts"
                 )
-            if self.exists(file_name):
+            if self.find_file(file_name):
                 file_name = gen_random_name(self.config["random_chars"]) + ext
             else:
                 break
@@ -74,19 +78,8 @@ class Uploader:
 
         return urljoin(self.config["alt_url"], b2_path)
 
-    def remove(self, file_path: str):
-        # Check if the file exists
-        if not self.exists(file_path):
-            raise RuntimeError(f"File {file_path} does not exist")
-
-        # Remove the file
-        b2_path = urljoin(self.path_in_bucket, file_path)
+    def remove(self, file_version: b2sdk.file_version.DownloadVersion):
         try:
-            found_file = self.bucket.get_file_info_by_name(b2_path)
-            print(found_file)
-            return found_file
-            result = found_file.delete()
+            return file_version.delete()
         except exception.B2Error as e:
-            raise RuntimeError(f"Could not upload file: {e}")
-
-        return result
+            raise RuntimeError(f"Failed to remove file: {e}")
