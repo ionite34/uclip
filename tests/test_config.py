@@ -31,3 +31,7 @@ def test_save(patched_config):
 def test_valid(patched_config):
     cfg = patched_config.Config()
     assert cfg.valid is False
+    # Add all required values
+    update = {key: 'val' for key in patched_config._required_values}
+    cfg.update(update)
+    assert cfg.valid is True
