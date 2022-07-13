@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 
 import b2sdk.exception as b2_exception
 import b2sdk.file_version
-from b2sdk.v2 import B2Api, InMemoryAccountInfo, exception
+from b2sdk.v2 import B2Api, InMemoryAccountInfo
 
 from uclip.config import Config
 
@@ -23,14 +23,14 @@ class Uploader:
     def __init__(self, config: Config):
         info = InMemoryAccountInfo()
         self.config = config
-        self.b2_api = B2Api(info)
+        self.api = B2Api(info)
         try:
-            self.b2_api.authorize_account(
+            self.api.authorize_account(
                 "production", config["b2_api_id"], config["b2_api_key"]
             )
         except b2_exception.B2Error as e:
             raise RuntimeError(f"Could not connect to B2: {e}")
-        self.bucket = self.b2_api.get_bucket_by_name(config["b2_bucket_name"])
+        self.bucket = self.api.get_bucket_by_name(config["b2_bucket_name"])
         path_in_bucket = config["b2_img_path"]
         if not str(path_in_bucket).endswith("/"):
             self.path_in_bucket = path_in_bucket + "/"
@@ -73,13 +73,14 @@ class Uploader:
         b2_path = urljoin(self.path_in_bucket, file_name)
         try:
             self.bucket.upload_local_file(file_path, b2_path)
-        except exception.B2Error as e:
+        except b2_exception.B2Error as e:
             raise RuntimeError(f"Could not upload file: {e}")
 
         return urljoin(self.config["alt_url"], b2_path)
 
-    def remove(self, file_version: b2sdk.file_version.DownloadVersion):
+    @staticmethod
+    def delete_file(file_version: b2sdk.file_version.DownloadVersion):
         try:
             return file_version.delete()
-        except exception.B2Error as e:
-            raise RuntimeError(f"Failed to remove file: {e}")
+        except b2_exception.B2Error as e:
+            raise RuntimeError(f"Failed to delete file: {e}")

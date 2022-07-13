@@ -103,16 +103,20 @@ def run_del(file_name: str) -> None:
             print(e)
             return
 
+        # Delete the file
         sp.text = 'Deleting file...'
         try:
             # Find file
             file = uploader.find_file(file_name)
             if not file:
-                sp.fail('❌ File not found')
+                sp.text = 'File not found'
+                sp.fail('❌')
                 return
+            # Delete file
+            uploader.delete_file(file)
         except RuntimeError as e:
-            sp.fail(f'❌ ')
-            print(e)
+            sp.text = e
+            sp.fail('❌')
             return
 
         # Print the URL
