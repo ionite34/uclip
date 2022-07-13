@@ -13,9 +13,9 @@ def test_gen_random_name():
 
 def test_uploader():
     cfg = Config()
-    cfg['b2_api_id'] = 'test'
-    cfg['b2_api_key'] = 'test'
-    cfg['b2_bucket_name'] = 'test'
-    cfg['b2_img_path'] = 'test'
+    cfg["b2_api_id"] = "test"
+    cfg["b2_api_key"] = "test"
+    cfg["b2_bucket_name"] = "test"
+    cfg["b2_img_path"] = "test"
     with pytest.raises(RuntimeError):
         Uploader(cfg)
