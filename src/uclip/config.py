@@ -15,12 +15,13 @@ _required_values = {
 }
 
 
-# Config Class for storing persistent user settings
 class Config(dict):
     def __init__(self):
+        """Stores persistent user settings in keyring."""
         super().__init__()
 
     def load(self) -> bool:
+        """Load config from keyring."""
         # Get the keyring entry
         try:
             data = keyring.get_password('uclip', 'config')
@@ -37,12 +38,12 @@ class Config(dict):
         return True
 
     def save(self):
-        # Get self as json, encode to base64, and store in keyring
+        """Save the current config to keyring."""
         data = json.dumps(self).encode('utf-8')
         data = base64.b64encode(data).decode('ascii')
         keyring.set_password('uclip', 'config', data)
 
     @property
     def valid(self) -> bool:
-        # Checks if the config is valid for use
+        """Checks if the config is valid for use."""
         return all(key in self for key in _required_values)
