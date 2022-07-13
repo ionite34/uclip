@@ -19,8 +19,8 @@ def gen_random_name(length: int) -> str:
 
 
 class Uploader:
-    # Uploads files using the B2 API
     def __init__(self, config: Config):
+        """Initializes the uploader."""
         info = InMemoryAccountInfo()
         self.config = config
         self.api = B2Api(info)
@@ -38,7 +38,7 @@ class Uploader:
             self.path_in_bucket = path_in_bucket
 
     def find_file(self, file_name: str) -> b2sdk.file_version.DownloadVersion | None:
-        """Searches for a file with the given bucket path"""
+        """Searches for a file with the given bucket path."""
         b2_path = urljoin(self.path_in_bucket, file_name)
         # Try to download
         try:
@@ -48,6 +48,7 @@ class Uploader:
         return search
 
     def upload(self, file_path: str):
+        """Uploads a file to the B2 bucket."""
         file_name = os.path.basename(file_path)
         base_name, ext = os.path.splitext(file_name)
 
@@ -80,6 +81,7 @@ class Uploader:
 
     @staticmethod
     def delete_file(file_version: b2sdk.file_version.DownloadVersion):
+        """Deletes a file from the B2 bucket."""
         try:
             return file_version.delete()
         except b2_exception.B2Error as e:
