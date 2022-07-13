@@ -49,7 +49,7 @@ def run() -> None:
         try:
             uploader = Uploader(config)
         except RuntimeError as e:
-            sp.fail('❌ ')
+            sp.fail('❌')
             print(e)
             return
 
@@ -63,7 +63,7 @@ def run() -> None:
             try:
                 url_result = uploader.upload(f.name)
             except RuntimeError as e:
-                sp.fail(f'❌ ')
+                sp.fail(f'❌')
                 print(e)
                 return
 
@@ -72,7 +72,7 @@ def run() -> None:
 
         # Print the URL
         sp.text = url_result
-        sp.ok('✅ ')
+        sp.ok('✅')
 
 
 def run_del(file_name: str) -> None:
@@ -99,7 +99,7 @@ def run_del(file_name: str) -> None:
         try:
             uploader = Uploader(config)
         except RuntimeError as e:
-            sp.fail('❌ ')
+            sp.fail('❌')
             print(e)
             return
 
@@ -140,7 +140,7 @@ def config_setup():
 
 @click.command()
 @click.option('--config', '-c', is_flag=True, help='Configure uclip')
-@click.option('--delete', '-d', required=False)
+@click.option('--delete', '-d', required=False, help='Delete a file')
 def uclip(config, delete):
     if config:
         config_setup()
