@@ -14,6 +14,19 @@
 pipx install uclip
 ```
 
+### Usage
+#### 1. Upload clipboard image
+```shell
+uclip
+✅ https://img.example.org/screens/9felsH.jpg
+```
+
+#### 2. `-d` or `--delete`: Delete image from bucket
+```shell
+uclip -d 9felsH.jpg
+🗑️ Deleted 9felsH.jpg
+```
+
 ### Run `--config` to set up your B2 API Keys and URL
 ```shell
 > uclip --config
