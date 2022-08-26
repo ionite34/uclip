@@ -1,10 +1,17 @@
-from PIL import ImageGrab, Image
-import click
-from yaspin import yaspin as spinner
-import pyperclip
+from __future__ import annotations
+
+from collections.abc import Callable
 from tempfile import NamedTemporaryFile
+from typing import TypeVar, Any, NoReturn
+
+import click
+import pyperclip
+from rich.console import Console
 from InquirerPy import inquirer
 from InquirerPy.validator import NumberValidator
+from PIL import Image, ImageGrab
+from typing_extensions import ParamSpec
+from yaspin import yaspin as spinner
 
 from .config import Config
 from .uploader import Uploader
@@ -16,20 +23,39 @@ _instr_alt_url = (
 _instr_b2_img_path = "Leave blank for root"
 _instr_random_chars = "Length of the random file name (Recommended between 4-12)"
 
+P = ParamSpec('P')
+T = TypeVar('T')
+
+console = Console()
+
+
+def attempt(func: Callable[[P], T], *args: Any, sp: spinner, verbose: bool = False) -> T | NoReturn:
+    try:
+        return func(*args)
+    except Exception as e:
+        sp.fail("❌")
+        if verbose:
+            console.print_exception()
+        else:
+            console.print(f"|- {e}")
+        raise SystemExit(1) from e
+
+
+def assert_exists(target: T, msg: str, sp: spinner) -> T | NoReturn:
+    if not target:
+        sp.fail("❌")
+        console.print(f"|- {msg}")
+        raise SystemExit(1)
+    return target
+
 
 def run() -> None:
     """
     Main function
     """
-    # Initialize the config
     with spinner(text="Loading config...", color="green") as sp:
         config = Config()
-        try:
-            result = config.load()
-        except RuntimeError as e:
-            sp.text = ""
-            sp.fail(f"❌ {e}")
-            return
+        result = attempt(config.load, sp=sp)
 
         if not result:
             sp.fail("❌ Config not found. Please run `uclip --config`.")
@@ -39,35 +65,20 @@ def run() -> None:
             sp.fail("❌ Config not valid. Please run `uclip --config`.")
             return
 
-        # Get image from clipboard
         sp.text = "Getting image from clipboard..."
         img = ImageGrab.grabclipboard()
-        if not img:
-            sp.fail("❌ [No image found]")
-            return
+        assert_exists(img, "No image found in clipboard", sp)
 
-        # Connect to B2
         sp.text = "Connecting to B2..."
-        try:
-            uploader = Uploader(config)
-        except RuntimeError as e:
-            sp.fail("❌")
-            print(e)
-            return
+        uploader = attempt(Uploader, config, sp=sp)
 
         # Check the image type
         ext = Image.MIME.get(img.format).split("/")[1]
 
-        # Save the image to a temporary file
         with NamedTemporaryFile(suffix=f".{ext}") as f:
             img.save(f.name)
             sp.text = "Uploading image..."
-            try:
-                url_result = uploader.upload(f.name)
-            except RuntimeError as e:
-                sp.fail(f"❌")
-                print(e)
-                return
+            url_result = attempt(uploader.upload, f.name, sp=sp)
 
         # Copy the URL to the clipboard
         pyperclip.copy(url_result)
@@ -81,47 +92,19 @@ def run_del(file_name: str) -> None:
     # Initialize the config
     with spinner(text="Loading config...", color="green") as sp:
         config = Config()
-        try:
-            result = config.load()
-        except RuntimeError as e:
-            sp.text = ""
-            sp.fail(f"❌ {e}")
-            return
+        result = attempt(config.load, sp=sp)
 
-        if not result:
-            sp.fail("❌ Config not found. Please run `uclip --config`.")
-            return
+        assert_exists(result, "Config not found. Please run `uclip --config`.", sp)
+        assert_exists(config.valid, "Config not valid. Please run `uclip --config`.", sp)
 
-        if not config.valid:
-            sp.fail("❌ Config not valid. Please run `uclip --config`.")
-            return
-
-        # Connect to B2
         sp.text = "Connecting to B2..."
-        try:
-            uploader = Uploader(config)
-        except RuntimeError as e:
-            sp.fail("❌")
-            print(e)
-            return
+        uploader = attempt(Uploader, config, sp=sp)
 
-        # Delete the file
         sp.text = "Deleting file..."
-        try:
-            # Find file
-            file = uploader.find_file(file_name)
-            if not file:
-                sp.text = "File not found"
-                sp.fail("❌")
-                return
-            # Delete file
-            uploader.delete_file(file)
-        except RuntimeError as e:
-            sp.text = e
-            sp.fail("❌")
-            return
+        file = attempt(uploader.find_file, file_name, sp=sp)
+        assert_exists(file, "File not found", sp)
+        attempt(uploader.delete_file, file, sp=sp)
 
-        # Print the URL
         sp.text = f"Deleted {file_name}"
         sp.ok("🗑️")
 
@@ -136,13 +119,12 @@ def config_setup():
         "B2 Bucket Name:", mandatory=True
     ).execute()
     config["b2_img_path"] = (
-        inquirer.text(
-            "B2 Upload Path in Bucket:", long_instruction=_instr_b2_img_path
-        ).execute()
-        or ""
+            inquirer.text(
+                "B2 Upload Path in Bucket:", long_instruction=_instr_b2_img_path
+            ).execute() or ""
     )
     config["alt_url"] = (
-        inquirer.text("Alternate URL:", long_instruction=_instr_alt_url).execute() or ""
+            inquirer.text("Alternate URL:", long_instruction=_instr_alt_url).execute() or ""
     )
     config["random_chars"] = int(
         inquirer.text(
