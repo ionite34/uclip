@@ -3,6 +3,9 @@
 [![Build](https://github.com/ionite34/uclip/actions/workflows/build.yml/badge.svg)](https://github.com/ionite34/uclip/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/ionite34/uclip/branch/main/graph/badge.svg?token=58XSRH3F26)](https://codecov.io/gh/ionite34/uclip)
 
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/uclip)
+[![PyPI version](https://badge.fury.io/py/uclip.svg)](https://pypi.org/project/uclip/)
+
 ### Upload clipboard images to [B2 buckets][4]
 
 ![](docs/demo.gif)
