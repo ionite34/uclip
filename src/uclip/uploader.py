@@ -7,6 +7,7 @@ from urllib.parse import urljoin
 
 import b2sdk.exception as b2_exception
 import b2sdk.file_version
+from b2sdk.progress import AbstractProgressListener
 from b2sdk.v2 import B2Api, InMemoryAccountInfo
 
 from uclip.config import Config
@@ -47,33 +48,42 @@ class Uploader:
             return None
         return search
 
-    def upload(self, file_path: str):
+    def upload(
+        self,
+        file_path: str,
+        upload_name: str | None = None,
+        progress_listener: AbstractProgressListener | None = None,
+    ):
         """Uploads a file to the B2 bucket."""
         file_name = os.path.basename(file_path)
         base_name, ext = os.path.splitext(file_name)
 
-        # Replace extension
+        # Shorten the .jpg extension
         if ext == ".jpeg":
             ext = ".jpg"
 
-        # Generate a random name
-        file_name = gen_random_name(self.config["random_chars"]) + ext
-
-        # Check if the file already exists
-        for i in range(5):
-            if i >= 5:
-                raise RuntimeError(
-                    "Could not find a unique name for the file in 5 attempts"
-                )
-            if self.find_file(file_name):
-                file_name = gen_random_name(self.config["random_chars"]) + ext
-            else:
-                break
+        # Generate a random name, check if exists up to 5 times
+        if upload_name:
+            if self.find_file(upload_name):
+                raise RuntimeError(f"File {upload_name} already exists")
+        else:
+            for i in range(5):
+                upload_name = gen_random_name(self.config["random_chars"]) + ext
+                if i >= 5:
+                    raise RuntimeError(
+                        "Could not find a unique name for the file in 5 attempts"
+                    )
+                if not self.find_file(upload_name):
+                    break
 
         # Upload the file
-        b2_path = urljoin(self.path_in_bucket, file_name)
+        b2_path = urljoin(self.path_in_bucket, upload_name)
         try:
-            self.bucket.upload_local_file(file_path, b2_path)
+            self.bucket.upload_local_file(
+                local_file=file_path,
+                file_name=b2_path,
+                progress_listener=progress_listener,
+            )
         except b2_exception.B2Error as e:
             raise RuntimeError(f"Could not upload file: {e}")
 

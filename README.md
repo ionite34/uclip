@@ -3,7 +3,7 @@
 [![Build](https://github.com/ionite34/uclip/actions/workflows/build.yml/badge.svg)](https://github.com/ionite34/uclip/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/ionite34/uclip/branch/main/graph/badge.svg?token=58XSRH3F26)](https://codecov.io/gh/ionite34/uclip)
 
-### Command line utility to upload a clipboard images to [B2 buckets][4]
+### Upload clipboard images to [B2 buckets][4]
 
 ![](docs/demo.gif)
 
@@ -17,13 +17,19 @@ pipx install uclip
 ### Usage
 #### 1. Upload clipboard image
 ```shell
-uclip
+> uclip
 ✅ https://img.example.org/screens/9felsH.jpg
 ```
-
-#### 2. `-d` or `--delete`: Delete image from bucket
+#### 2. `-f` or `--file`: Upload file from path
 ```shell
-uclip -d 9felsH.jpg
+> uclip -f /Documents/dog.webp
+? Generate random file name? Otherwise use name from path. Yes
+✅ https://cdn.ionite.io/img/ik8tZg.webp
+```
+
+#### 3. `-d` or `--delete`: Delete named file from bucket
+```shell
+> uclip -d 9felsH.jpg
 🗑️ Deleted 9felsH.jpg
 ```
 
