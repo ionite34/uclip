@@ -28,7 +28,9 @@ class RichProgressListener(AbstractProgressListener):
             self.progress = Progress(transient=self.transient)
             self.progress.start()
         self.end_existing()
-        self.task = self.progress.add_task(self.description, total=total_byte_count, start=True)
+        self.task = self.progress.add_task(
+            self.description, total=total_byte_count, start=True
+        )
         self.total_bytes = total_byte_count
         self.progress.update(self.task, advance=50, refresh=True)
 
