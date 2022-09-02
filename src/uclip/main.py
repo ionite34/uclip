@@ -92,7 +92,7 @@ def run() -> None:
             img.save(f.name)
             sp.hide()
             with RichProgressListener("Uploading...", transient=True) as pbar:
-                url_result = attempt(uploader.upload, f.name, pbar, sp=sp)
+                url_result = attempt(uploader.upload, f.name, None, pbar, sp=sp)
 
         # Copy the URL to the clipboard
         pyperclip.copy(url_result)
