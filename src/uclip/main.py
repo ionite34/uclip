@@ -1,20 +1,25 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TypeVar, Any, NoReturn
 
 import click
 import pyperclip
 from rich.console import Console
+from rich.progress import Progress
 from InquirerPy import inquirer
 from InquirerPy.validator import NumberValidator
 from PIL import Image, ImageGrab
-from typing_extensions import ParamSpec
-from yaspin import yaspin as spinner
+from typing import ParamSpec
+from yaspin import yaspin
+from yaspin.core import Yaspin
 
-from .config import Config
-from .uploader import Uploader
+from uclip import __version__
+from uclip.config import Config
+from uclip.uploader import Uploader
+from uclip.progress import RichProgressListener
 
 _instr_alt_url = (
     "Optional Alternate URL that will be copied, this should "
@@ -23,37 +28,45 @@ _instr_alt_url = (
 _instr_b2_img_path = "Leave blank for root"
 _instr_random_chars = "Length of the random file name (Recommended between 4-12)"
 
-P = ParamSpec('P')
-T = TypeVar('T')
+P = ParamSpec("P")
+T = TypeVar("T")
 
 console = Console()
 
 
-def attempt(func: Callable[[P], T], *args: Any, sp: spinner, verbose: bool = False) -> T | NoReturn:
+def attempt(
+    func: Callable[[P], T], *args: Any, sp: Yaspin, verbose: bool = False
+) -> T | NoReturn:
     try:
         return func(*args)
     except Exception as e:
-        sp.fail("❌")
+        sp.hide()
         if verbose:
             console.print_exception()
         else:
-            console.print(f"|- {e}")
-        raise SystemExit(1) from e
+            console.print(f"❌ [yellow]{e}")
+        raise SystemExit(1)
 
 
-def assert_exists(target: T, msg: str, sp: spinner) -> T | NoReturn:
+def assert_exists(target: T, msg: str, sp: Yaspin) -> T | NoReturn:
     if not target:
-        sp.fail("❌")
-        console.print(f"|- {msg}")
+        sp.hide()
+        console.print(f"❌ [yellow]{msg}")
         raise SystemExit(1)
     return target
+
+
+def humanize_url(url: str) -> str:
+    # noinspection HttpUrlsUsage
+    return url.replace("https://", "").replace("http://", "")
 
 
 def run() -> None:
     """
     Main function
     """
-    with spinner(text="Loading config...", color="green") as sp:
+    sp: Yaspin
+    with yaspin(text="Loading config...", color="green") as sp:
         config = Config()
         result = attempt(config.load, sp=sp)
 
@@ -65,7 +78,7 @@ def run() -> None:
             sp.fail("❌ Config not valid. Please run `uclip --config`.")
             return
 
-        sp.text = "Getting image from clipboard..."
+        sp.text = "Loading image from clipboard..."
         img = ImageGrab.grabclipboard()
         assert_exists(img, "No image found in clipboard", sp)
 
@@ -77,25 +90,63 @@ def run() -> None:
 
         with NamedTemporaryFile(suffix=f".{ext}") as f:
             img.save(f.name)
-            sp.text = "Uploading image..."
-            url_result = attempt(uploader.upload, f.name, sp=sp)
+            sp.hide()
+            with RichProgressListener("Uploading...", transient=True) as pbar:
+                url_result = attempt(uploader.upload, f.name, pbar, sp=sp)
 
         # Copy the URL to the clipboard
         pyperclip.copy(url_result)
 
-        # Print the URL
-        sp.text = url_result
-        sp.ok("✅")
+        console.print(f"✅ {url_result}")
+
+
+def run_file(file_path: str) -> None:
+    # Prompt to provide file name
+    use_rand = inquirer.confirm(
+        message="Generate random file name? Otherwise use name from path.",
+        mandatory=True,
+    ).execute()
+
+    sp: Yaspin
+    with yaspin(text="Loading config...", color="green") as sp:
+        config = Config()
+        result = attempt(config.load, sp=sp)
+
+        if not result:
+            sp.fail("❌ Config not found. Please run `uclip --config`.")
+            return
+
+        if not config.valid:
+            sp.fail("❌ Config not valid. Please run `uclip --config`.")
+            return
+
+        file = Path(file_path).resolve()
+        f_name = file.stem if not use_rand else None
+        assert_exists(file.is_file, "File not found.", sp)
+
+        sp.text = "Connecting to B2..."
+        uploader = attempt(Uploader, config, sp=sp)
+
+        sp.hide()
+        with RichProgressListener("Uploading...", transient=True) as pbar:
+            url_result = attempt(uploader.upload, str(file), f_name, pbar, sp=sp)
+
+        # Copy the URL to the clipboard
+        pyperclip.copy(url_result)
+
+        console.print(f"✅ {url_result}")
 
 
 def run_del(file_name: str) -> None:
     # Initialize the config
-    with spinner(text="Loading config...", color="green") as sp:
+    with yaspin(text="Loading config...", color="green") as sp:
         config = Config()
         result = attempt(config.load, sp=sp)
 
         assert_exists(result, "Config not found. Please run `uclip --config`.", sp)
-        assert_exists(config.valid, "Config not valid. Please run `uclip --config`.", sp)
+        assert_exists(
+            config.valid, "Config not valid. Please run `uclip --config`.", sp
+        )
 
         sp.text = "Connecting to B2..."
         uploader = attempt(Uploader, config, sp=sp)
@@ -104,9 +155,9 @@ def run_del(file_name: str) -> None:
         file = attempt(uploader.find_file, file_name, sp=sp)
         assert_exists(file, "File not found", sp)
         attempt(uploader.delete_file, file, sp=sp)
+        sp.hide()
 
-        sp.text = f"Deleted {file_name}"
-        sp.ok("🗑️")
+    console.print(f"🗑️  Deleted [blue]{file_name}")
 
 
 def config_setup():
@@ -119,12 +170,13 @@ def config_setup():
         "B2 Bucket Name:", mandatory=True
     ).execute()
     config["b2_img_path"] = (
-            inquirer.text(
-                "B2 Upload Path in Bucket:", long_instruction=_instr_b2_img_path
-            ).execute() or ""
+        inquirer.text(
+            "B2 Upload Path in Bucket:", long_instruction=_instr_b2_img_path
+        ).execute()
+        or ""
     )
     config["alt_url"] = (
-            inquirer.text("Alternate URL:", long_instruction=_instr_alt_url).execute() or ""
+        inquirer.text("Alternate URL:", long_instruction=_instr_alt_url).execute() or ""
     )
     config["random_chars"] = int(
         inquirer.text(
@@ -138,11 +190,17 @@ def config_setup():
 
 
 @click.command()
+@click.option("--file", "-f", help="Upload a file from path")
 @click.option("--config", "-c", is_flag=True, help="Configure uclip")
+@click.option("--version", "-v", is_flag=True, help="Show uclip version")
 @click.option("--delete", "-d", required=False, help="Delete a file")
-def uclip(config, delete):
+def uclip(file, config, version, delete):
     if config:
         config_setup()
+    elif file:
+        run_file(file)
+    elif version:
+        console.print(f"uclip [blue]v{__version__}")
     elif delete:
         run_del(delete)
     else:
