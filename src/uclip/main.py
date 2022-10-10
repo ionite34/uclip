@@ -35,7 +35,7 @@ console = Console()
 
 def attempt(
     func: Callable[[P], T], *args: Any, sp: Yaspin, verbose: bool = False
-) -> T | NoReturn:
+) -> T:
     """
     Attempt to run a function, if it fails, print the error and exit
 
