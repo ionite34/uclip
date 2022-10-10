@@ -3,7 +3,8 @@ from __future__ import annotations
 from collections.abc import Callable
 from contextlib import contextmanager
 from pathlib import Path
-from tempfile import NamedTemporaryFile
+from uuid import uuid4
+from tempfile import TemporaryDirectory
 from typing import TypeVar, Any, NoReturn
 
 import click
@@ -114,16 +115,17 @@ class App:
         """Main image upload routine."""
         with self.sp_text("Loading image from clipboard..."):
             img = ImageGrab.grabclipboard()
-            img_ext = Image.MIME.get(img.format).split("/")[1]
             self.assert_exists(img, msg="No image found in clipboard")
+            img_ext = Image.MIME.get(img.format).split("/")[1]
 
         uploader = self.uploader
 
-        with NamedTemporaryFile(mode="wb", suffix=f".{img_ext}") as f:
-            img.save(f)
+        with TemporaryDirectory() as tmp_dir:
+            tmp_file = Path(tmp_dir) / f"tmp{uuid4().hex[:6]}.{img_ext}"
+            img.save(tmp_file)
             self.sp.hide()
             with RichProgressListener("Uploading...", transient=True) as pbar:
-                url_result = self.attempt(uploader.upload, f.name, None, pbar)
+                url_result = self.attempt(uploader.upload, tmp_file, None, pbar)
 
         # Copy the URL to the clipboard
         pyperclip.copy(url_result)
