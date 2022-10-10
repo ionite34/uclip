@@ -54,17 +54,19 @@ def image_format(image: Image.Image) -> str:
 class App:
     """Main CLI Application."""
 
-    def __init__(self, verbose: bool = False):
+    def __init__(self, verbose: bool = False) -> None:
+        """Initialize the application."""
         self.verbose = verbose
         self.sp: Yaspin | None = None
 
     def spin(self, *args, **kwargs) -> Yaspin:
+        """Create a spinner."""
         self.sp = yaspin(*args, **kwargs)
         return self.sp
 
     @contextmanager
     def sp_text(self, text: str) -> None:
-        # Check if a spinner is defined
+        """Context manager for a spinner with text."""
         if self.sp is None:
             # If not, create one
             self.sp = yaspin(text=text, color="green")
@@ -97,6 +99,7 @@ class App:
             raise SystemExit(1)
 
     def assert_exists(self, *target: T, msg: str) -> T:
+        """Assert that objects are truthy."""
         if not all(target):
             self.sp.hide()
             console.print(f"❌ [yellow]{msg}")
@@ -117,12 +120,14 @@ class App:
         return config
 
     def fail(self, msg: str) -> NoReturn:
+        """Failure message and exit."""
         self.sp.hide()
         console.print(f"❌ [yellow]{msg}")
         raise SystemExit(1)
 
     @cached_property
     def uploader(self) -> Uploader:
+        """Creates an uploader instance."""
         config = self.config
         with self.sp_text("Connecting to B2..."):
             return self.attempt(Uploader, config)
