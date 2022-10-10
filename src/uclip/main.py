@@ -96,7 +96,7 @@ class App:
         """Loads configs."""
         with self.sp_text("Loading config..."):
             config = Config()
-            result = self.attempt(self.config.load)
+            result = self.attempt(config.load)
             self.assert_exists(
                 result,
                 config.valid,
