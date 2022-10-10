@@ -58,6 +58,7 @@ class App:
         if self.sp is None:
             # If not, create one
             self.sp = yaspin(text=text, color="green")
+            self.sp.start()
         self.sp.text = text
         yield None
         self.sp.text = ""
@@ -166,6 +167,10 @@ class App:
         self.sp.hide()
         console.print(f"🗑️  Deleted [blue]{file_name}")
 
+    def __del__(self):
+        if self.sp is not None:
+            self.sp.stop()
+
 
 def config_setup():
     config = Config()
@@ -177,13 +182,13 @@ def config_setup():
         "B2 Bucket Name:", mandatory=True
     ).execute()
     config["b2_img_path"] = (
-            inquirer.text(
-                "B2 Upload Path in Bucket:", long_instruction=_instr_b2_img_path
-            ).execute()
-            or ""
+        inquirer.text(
+            "B2 Upload Path in Bucket:", long_instruction=_instr_b2_img_path
+        ).execute()
+        or ""
     )
     config["alt_url"] = (
-            inquirer.text("Alternate URL:", long_instruction=_instr_alt_url).execute() or ""
+        inquirer.text("Alternate URL:", long_instruction=_instr_alt_url).execute() or ""
     )
     config["random_chars"] = int(
         inquirer.text(
