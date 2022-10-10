@@ -2,7 +2,7 @@ import pytest
 from keyring.backend import KeyringBackend
 
 
-class TestKeyring(KeyringBackend):
+class MockKeyring(KeyringBackend):
 
     """A test keyring which is just an in-memory dictionary."""
 
@@ -23,5 +23,6 @@ class TestKeyring(KeyringBackend):
 @pytest.fixture(scope="function")
 def mem_keyring():
     import keyring as kr
-    kr.set_keyring(TestKeyring())
+
+    kr.set_keyring(MockKeyring())
     return kr
