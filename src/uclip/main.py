@@ -8,7 +8,6 @@ from typing import TypeVar, Any, NoReturn
 import click
 import pyperclip
 from rich.console import Console
-from rich.progress import Progress
 from InquirerPy import inquirer
 from InquirerPy.validator import NumberValidator
 from PIL import Image, ImageGrab
@@ -37,6 +36,18 @@ console = Console()
 def attempt(
     func: Callable[[P], T], *args: Any, sp: Yaspin, verbose: bool = False
 ) -> T | NoReturn:
+    """
+    Attempt to run a function, if it fails, print the error and exit
+
+    Args:
+        func: The function to run
+        args: The arguments to pass to the function
+        sp: The spinner to use
+        verbose: Whether to print the error message
+
+    Returns:
+        The result of the function
+    """
     try:
         return func(*args)
     except Exception as e:
@@ -48,8 +59,8 @@ def attempt(
         raise SystemExit(1)
 
 
-def assert_exists(target: T, msg: str, sp: Yaspin) -> T | NoReturn:
-    if not target:
+def assert_exists(*target: T, msg: str, sp: Yaspin) -> T | NoReturn:
+    if not all(target):
         sp.hide()
         console.print(f"❌ [yellow]{msg}")
         raise SystemExit(1)
@@ -70,6 +81,8 @@ def run() -> None:
         config = Config()
         result = attempt(config.load, sp=sp)
 
+        assert_exists(result, msg="Config not found. Please run `uclip --config`.", sp=sp)
+
         if not result:
             sp.fail("❌ Config not found. Please run `uclip --config`.")
             return
@@ -80,7 +93,7 @@ def run() -> None:
 
         sp.text = "Loading image from clipboard..."
         img = ImageGrab.grabclipboard()
-        assert_exists(img, "No image found in clipboard", sp)
+        assert_exists(img, msg="No image found in clipboard", sp=sp)
 
         sp.text = "Connecting to B2..."
         uploader = attempt(Uploader, config, sp=sp)
@@ -112,17 +125,11 @@ def run_file(file_path: str) -> None:
         config = Config()
         result = attempt(config.load, sp=sp)
 
-        if not result:
-            sp.fail("❌ Config not found. Please run `uclip --config`.")
-            return
-
-        if not config.valid:
-            sp.fail("❌ Config not valid. Please run `uclip --config`.")
-            return
+        assert_exists(result, config.valid, msg="Config not found. Please run `uclip --config`.", sp=sp)
 
         file = Path(file_path).resolve()
         f_name = file.stem if not use_rand else None
-        assert_exists(file.is_file, "File not found.", sp)
+        assert_exists(file.is_file, msg="File not found.", sp=sp)
 
         sp.text = "Connecting to B2..."
         uploader = attempt(Uploader, config, sp=sp)
@@ -143,17 +150,14 @@ def run_del(file_name: str) -> None:
         config = Config()
         result = attempt(config.load, sp=sp)
 
-        assert_exists(result, "Config not found. Please run `uclip --config`.", sp)
-        assert_exists(
-            config.valid, "Config not valid. Please run `uclip --config`.", sp
-        )
+        assert_exists(result, config.valid, msg="Config not found. Please run `uclip --config`.", sp=sp)
 
         sp.text = "Connecting to B2..."
         uploader = attempt(Uploader, config, sp=sp)
 
         sp.text = "Deleting file..."
         file = attempt(uploader.find_file, file_name, sp=sp)
-        assert_exists(file, "File not found", sp)
+        assert_exists(file, msg="File not found", sp=sp)
         attempt(uploader.delete_file, file, sp=sp)
         sp.hide()
 
