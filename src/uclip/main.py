@@ -81,15 +81,7 @@ def run() -> None:
         config = Config()
         result = attempt(config.load, sp=sp)
 
-        assert_exists(result, msg="Config not found. Please run `uclip --config`.", sp=sp)
-
-        if not result:
-            sp.fail("❌ Config not found. Please run `uclip --config`.")
-            return
-
-        if not config.valid:
-            sp.fail("❌ Config not valid. Please run `uclip --config`.")
-            return
+        assert_exists(result, config.valid, msg="Config not found. Please run `uclip --config`.", sp=sp)
 
         sp.text = "Loading image from clipboard..."
         img = ImageGrab.grabclipboard()
