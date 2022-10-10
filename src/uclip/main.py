@@ -91,11 +91,10 @@ def run() -> None:
         sp.text = "Connecting to B2..."
         uploader = attempt(Uploader, config, sp=sp)
 
-        # Check the image type
-        ext = Image.MIME.get(img.format).split("/")[1]
+        image_ext = Image.MIME.get(img.format).split("/")[1]
 
-        with NamedTemporaryFile(suffix=f".{ext}") as f:
-            img.save(f.name)
+        with NamedTemporaryFile(mode="wb", suffix=f".{image_ext}") as f:
+            img.save(f)
             sp.hide()
             with RichProgressListener("Uploading...", transient=True) as pbar:
                 url_result = attempt(uploader.upload, f.name, None, pbar, sp=sp)
