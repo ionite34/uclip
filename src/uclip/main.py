@@ -68,6 +68,7 @@ def assert_exists(*target: T, msg: str, sp: Yaspin) -> T | NoReturn:
 
 
 def humanize_url(url: str) -> str:
+    """Removes the protocol from a URL."""
     # noinspection HttpUrlsUsage
     return url.replace("https://", "").replace("http://", "")
 
