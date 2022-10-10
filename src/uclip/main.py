@@ -154,6 +154,7 @@ class App:
         console.print(f"✅ {url_result}")
 
     def run_file(self, file_path: str) -> None:
+        """Upload a file."""
         # Prompt to provide file name
         use_rand = inquirer.confirm(
             message="Generate random file name? Otherwise use name from path.",
@@ -176,6 +177,7 @@ class App:
         console.print(f"✅ {url_result}")
 
     def run_del(self, file_name: str) -> None:
+        """Delete a file."""
         # Initialize the config
         uploader = self.uploader
 
