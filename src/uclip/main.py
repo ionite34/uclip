@@ -202,13 +202,13 @@ def config_setup():
         "B2 Bucket Name:", mandatory=True
     ).execute()
     config["b2_img_path"] = (
-            inquirer.text(
-                "B2 Upload Path in Bucket:", long_instruction=_instr_b2_img_path
-            ).execute()
-            or ""
+        inquirer.text(
+            "B2 Upload Path in Bucket:", long_instruction=_instr_b2_img_path
+        ).execute()
+        or ""
     )
     config["alt_url"] = (
-            inquirer.text("Alternate URL:", long_instruction=_instr_alt_url).execute() or ""
+        inquirer.text("Alternate URL:", long_instruction=_instr_alt_url).execute() or ""
     )
     config["random_chars"] = int(
         inquirer.text(
