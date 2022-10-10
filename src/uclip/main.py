@@ -43,7 +43,17 @@ def humanize_url(url: str) -> str:
     return url.replace("https://", "").replace("http://", "")
 
 
+def image_format(image: Image.Image) -> str:
+    """Returns the extension format of an image."""
+    try:
+        return Image.MIME.get(image.format).split("/")[1]
+    except (ValueError, AttributeError) as e:
+        raise ValueError("Could not determine image format") from e
+
+
 class App:
+    """Main CLI Application."""
+
     def __init__(self, verbose: bool = False):
         self.verbose = verbose
         self.sp: Yaspin | None = None
@@ -106,6 +116,11 @@ class App:
             )
         return config
 
+    def fail(self, msg: str) -> NoReturn:
+        self.sp.hide()
+        console.print(f"❌ [yellow]{msg}")
+        raise SystemExit(1)
+
     @cached_property
     def uploader(self) -> Uploader:
         config = self.config
@@ -117,7 +132,7 @@ class App:
         with self.sp_text("Loading image from clipboard..."):
             img = ImageGrab.grabclipboard()
             self.assert_exists(img, msg="No image found in clipboard")
-            img_ext = Image.MIME.get(img.format).split("/")[1]
+            img_ext = image_format(img)
 
         uploader = self.uploader
 
@@ -182,13 +197,13 @@ def config_setup():
         "B2 Bucket Name:", mandatory=True
     ).execute()
     config["b2_img_path"] = (
-        inquirer.text(
-            "B2 Upload Path in Bucket:", long_instruction=_instr_b2_img_path
-        ).execute()
-        or ""
+            inquirer.text(
+                "B2 Upload Path in Bucket:", long_instruction=_instr_b2_img_path
+            ).execute()
+            or ""
     )
     config["alt_url"] = (
-        inquirer.text("Alternate URL:", long_instruction=_instr_alt_url).execute() or ""
+            inquirer.text("Alternate URL:", long_instruction=_instr_alt_url).execute() or ""
     )
     config["random_chars"] = int(
         inquirer.text(
